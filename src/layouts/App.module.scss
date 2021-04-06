@@ -1,0 +1,46 @@
+.App {
+  height: 100%;
+  .header {
+    padding: 10px;
+    background-color: #314866;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+
+    img {
+      width: 60px;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      width: 85px;
+      flex-shrink: 0;
+    }
+    .titleBox {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+    .LogoutOutlined,
+    .LoginOutlined {
+      font-size: 16px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .LogoutOutlined {
+      :hover {
+        color: red;
+      }
+    }
+    .LoginOutlined {
+      :hover {
+        color: green;
+      }
+    }
+  }
+}
