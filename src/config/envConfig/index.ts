@@ -6,6 +6,7 @@ declare global {
 
 const defaultConfig = {
   host: "http://kisia.cn:8080",
+  // host: "http://localhost:8080",
   // windowHost: "http://WORKER_IP:31221",
   debug: true,
 };

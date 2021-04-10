@@ -3,6 +3,7 @@ import AddApproval from "pages/AddApproval/AddApproval";
 import Approval from "pages/Approval/Approval";
 import User from "pages/User/User";
 import Project from "pages/Project/Project";
+import Staff from "pages/Staff/Staff";
 
 
 export interface Route {
@@ -39,5 +40,11 @@ export const routes: Route[] = [
     name: "项目列表",
     component: Project,
     isShow: true,
+  },
+  {
+    path: "/Staff",
+    name: "员工列表",
+    component: Staff,
+    isShow: true
   }
 ];

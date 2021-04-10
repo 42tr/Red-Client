@@ -125,7 +125,7 @@ const App = (props: any) => {
               <div className={styles.titleBox}>
                 {
                   user ? <><span onClick={() => {
-                    api('user/auth/logout',undefined,'DELETE').then((res) => {
+                    api('user/logout',undefined,'DELETE').then((res) => {
                       // if(res === 0) {
                       //   setUser(() => false)
                       // }
@@ -166,6 +166,7 @@ const App = (props: any) => {
                 }
               </SubMenu>
               <Menu.Item key={'Project'}>{'项目列表'}</Menu.Item>
+              <Menu.Item key={'Staff'}>{'人员'}</Menu.Item>
               <Menu.Item key={'User'}>{'修改密码'}</Menu.Item>
             </Menu>
           </Sider>
