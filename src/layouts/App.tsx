@@ -61,7 +61,6 @@ const App = (props: any) => {
   const [user, setUser] = useState<boolean>(false); // 是否登录
   const [isModalVisible, setIsModalVisible] = useState(false); // 登录展示
   const [menu, setMenu] = useState<any[]>([]); // 申请内容菜单列表
-
   const showModal = () => {
     setIsModalVisible(() => true);
   };
@@ -75,6 +74,9 @@ const App = (props: any) => {
     setIsModalVisible(() => false);
   };
   useEffect(() => {
+      const { location: { pathname } } = props
+      let arr = pathname.split('/')
+      setSelectedKeys(() => arr[arr.length - 1])
       // GET /project/list   协助判断是否登录
       api('project/list',undefined,'GET').then((res: any) => {
         if(res.code === '401') {
@@ -84,6 +86,7 @@ const App = (props: any) => {
         }
       })
       getMenu()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = (username: string,password: string) => {
@@ -151,21 +154,21 @@ const App = (props: any) => {
             <Menu theme='dark' mode="inline" selectedKeys={[selectedKeys]} defaultOpenKeys={['Approval']}
               onClick={(e: any) => {
                 setSelectedKeys(e.key)
-                // console.log('Menu',e.keyPath.reverse().join('/'))
                 props.history.push(`/${e.keyPath.reverse().join('/')}`)
               }}
             >
               <SubMenu key="Approval" icon={<UserOutlined />} title="审批">
                 {
-                  ApprovalList.map(({key,name}) => <Menu.Item key={key}>{name}</Menu.Item>)
+                  ApprovalList.map(({key,name}) => <Menu.Item key={key + ''}>{name}</Menu.Item>)
                 }
               </SubMenu>
               <SubMenu key="AddApproval" icon={<UserOutlined />} title="申请">
                 {
-                  menu.map(({ID,Name}) => <Menu.Item key={ID}>{Name}</Menu.Item>)
+                  menu.map(({ID,Name}) => <Menu.Item key={ID + ''}>{Name}</Menu.Item>)
                 }
               </SubMenu>
               <Menu.Item key={'Project'}>{'项目列表'}</Menu.Item>
+              <Menu.Item key={'Finance'}>{'财务'}</Menu.Item>
               <Menu.Item key={'Staff'}>{'人员'}</Menu.Item>
               <Menu.Item key={'User'}>{'修改密码'}</Menu.Item>
             </Menu>

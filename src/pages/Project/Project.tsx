@@ -3,7 +3,8 @@ import styles from "./Project.module.scss"
 import { api } from 'utils/api'
 import {
   Button, Form, message,
-  Pagination, Table, Modal, Input
+  Pagination, Table, Modal, Input,
+  Popconfirm
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
@@ -50,15 +51,20 @@ const Project = (props: any) => {
       align: 'center',
       render: (args: any, record: any, index: number) => <>
       <Button style={{marginRight: '20px'}} type='primary' onClick={() => {showModal(record); setType(args)}}>修改项目信息</Button>
-      <Button type='primary' danger onClick={() => {
-        // DELETE /project/{id}
-        api(`project/${args}`).then((res) => {
-          if(res.code === 0) {
-            message.success('删除成功')
-            getProject()
-          }
-        })
-      }}>删除</Button>
+      <Popconfirm
+        title="确认删除"
+        onConfirm={() => {
+          // DELETE /project/{id}
+          api(`project/${args}`,undefined,"DELETE").then((res) => {
+            if(res.code === 0) {
+              message.success('删除成功')
+              getProject()
+            }
+          })
+        }}
+      >
+        <Button type='primary' danger >删除</Button>
+      </Popconfirm>
       </>
     }
   ]
@@ -94,7 +100,6 @@ const Project = (props: any) => {
   }
 
   const onFinish = (values: any) => {
-    console.log('values',values)
     // POST /project
     // PUT /project/{id}
     if(type === 'add') {
@@ -120,7 +125,6 @@ const Project = (props: any) => {
   const onFinishFailed = (errorInfo: any) => {
     console.log('Failed:', errorInfo);
   };
-
   return (
     <div className={styles.AddApproval}>
       <div className={styles.tableBox}>
@@ -146,7 +150,7 @@ const Project = (props: any) => {
             <Pagination
               showSizeChanger={false}
               showQuickJumper={true}
-              current={page + 1}
+              current={page}
               total={total}
               pageSize={10}
               size="small"
@@ -180,6 +184,7 @@ const Project = (props: any) => {
           <Form.Item
             label="项目描述"
             name="description"
+            rules={[{ required: true, message: '请输入项目描述!' }]}
           >
             <Input.TextArea placeholder="项目描述..." />
           </Form.Item>

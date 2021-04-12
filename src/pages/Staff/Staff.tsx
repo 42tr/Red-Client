@@ -63,7 +63,7 @@ const Staff = (props: any) => {
         <Button style={{marginRight: '20px'}} type='primary' danger>重置密码</Button>
       </Popconfirm>
       <Button style={{marginRight: '20px'}} type='primary'
-       onClick={() => {setCurUserId(args);setInputDisable(true);showModal(record); setType(args)}}>修改上级</Button>
+        onClick={() => {setCurUserId(args);setInputDisable(true);showModal(record); setType(args)}}>修改上级</Button>
       <Popconfirm
         title="确认删除"
         onConfirm={() => {
@@ -164,7 +164,7 @@ const Staff = (props: any) => {
             <Pagination
               showSizeChanger={false}
               showQuickJumper={true}
-              current={page + 1}
+              current={page}
               total={total}
               pageSize={10}
               size="small"

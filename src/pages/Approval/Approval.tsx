@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import {
   Button,
-  Pagination, Table
+  Pagination, Table,
+  Modal,
+  Row,Col,
+  Popconfirm
 } from 'antd';
 import styles from "./Approval.module.scss";
 import { api } from 'utils/api'
@@ -13,6 +16,8 @@ import { connect } from "react-redux";
 import { RootState } from "reduxs";
 
 const Approval = (props: any) => {
+  const [isModalVisible, setIsModalVisible] = useState(false); // 登录展示
+  const [detail, setDetail] = useState<any>(null);
   // 表头配置
   const columns: ColumnsType<any> | undefined = [
     {
@@ -42,10 +47,19 @@ const Approval = (props: any) => {
     },
     {
       title: '操作',
-      dataIndex: 'cz',
-      key: 'cz',
+      dataIndex: 'id',
+      key: 'id',
       align: 'center',
-      render: (args: any, record: any, index: number) => <Button type='primary'>查看详情</Button>
+      render: (id: any, record: any, index: number) => <Button type='primary' onClick={() => {
+        // GET /approval/detail/{id}
+        api(`approval/detail/${id}`,undefined,"GET").then((res) => {
+          if(res.code === 0) {
+            setDetail(() => res.data)
+            setIsModalVisible(() => true)
+          }
+        })
+        
+      }}>查看详情</Button>
     }
   ]
   // 初始化 serviceType 
@@ -69,7 +83,7 @@ const Approval = (props: any) => {
 
   // 初始化表格数据
   useEffect(() => {
-    setPage(() => 0)
+    setPage(() => 1)
     getDataList()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serviceType]);
@@ -100,6 +114,17 @@ const Approval = (props: any) => {
         break;
     }
   }
+  const handleOk = () => {
+    setIsModalVisible(() => false);
+    setPage(() => 1)
+    getDataList()
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(() => false);
+    setPage(() => 1)
+    getDataList()
+  };
   return (
     <div className={styles.Approval}>
       <div className={styles.tableBox}>
@@ -108,7 +133,7 @@ const Approval = (props: any) => {
         </div>
         <Table
           columns={columns}
-          dataSource={dataList.slice(page * 10,(page + 1) * 10)}
+          dataSource={dataList.slice((page - 1) * 10,page * 10)}
           pagination={false}
           loading={loading}
           rowKey={((record, index) => {
@@ -122,7 +147,7 @@ const Approval = (props: any) => {
             <Pagination
               showSizeChanger={false}
               showQuickJumper={true}
-              current={page + 1}
+              current={page}
               total={total}
               pageSize={10}
               size="small"
@@ -134,7 +159,119 @@ const Approval = (props: any) => {
           <div className={styles.btns}></div>
         </div>
       </div>
-    
+      <Modal title="Basic Modal" 
+        visible={isModalVisible} 
+        // onOk={handleOk} 
+        footer={<>
+          {
+            returnTitle(serviceType) === '待处理' && <Popconfirm
+            title="确认同意？"
+            onConfirm={() => {
+              // PUT /approval/{id}/{status}
+              api(`approval/${detail.id}/1`,undefined,"PUT")
+              handleOk()
+            }}
+          >
+            <Button style={{margin: '0 10px'}} type='primary' >同意</Button>
+          </Popconfirm>
+          }
+          {
+            returnTitle(serviceType) === '待处理' && <Popconfirm
+            title="确认拒绝？"
+            onConfirm={() => {
+              // PUT /approval/{id}/{status}
+              api(`approval/${detail.id}/2`,undefined,"PUT")
+              handleOk()
+            }}
+          >
+            <Button style={{margin: '0 10px'}} type='primary' danger >拒绝</Button>
+          </Popconfirm>
+          }
+          {
+            returnTitle(serviceType) === '已处理' && <Popconfirm
+            title="确认改为待处理？"
+            onConfirm={() => {
+              // PUT /approval/{id}/{status}
+              api(`approval/${detail.id}/0`,undefined,"PUT")
+              handleOk()
+            }}
+          >
+            <Button style={{margin: '0 10px'}} type='primary' danger >改为待处理</Button>
+          </Popconfirm>
+          }
+          {
+            returnTitle(serviceType) === '已发起' &&<Popconfirm
+            title="确认撤回？"
+            onConfirm={() => {
+              // PUT /approval/{id}/{status}
+              api(`approval/${detail.id}/3`,undefined,"PUT")
+              handleOk()
+            }}
+          >
+            <Button style={{margin: '0 10px'}} type='primary' danger >撤回</Button>
+          </Popconfirm>
+          }
+        </>}
+        onCancel={handleCancel}
+      >
+        {
+          detail && <>
+          <Row>
+          <Col span={4} style={{textAlign: 'right'}}>
+            项目名称：
+          </Col>
+          <Col>{detail.projectName || '未知'}</Col>
+        </Row>
+        <Row>
+          <Col span={4} style={{textAlign: 'right'}}>
+            申请内容：
+          </Col>
+          <Col>{detail.name || '未知'}</Col>
+        </Row>
+        <Row>
+          <Col span={4} style={{textAlign: 'right'}}>
+            申请人：
+          </Col>
+          <Col>{detail.applyUserName || '未知'}</Col>
+        </Row>
+        <Row>
+          <Col span={4} style={{textAlign: 'right'}}>
+            申请时间：
+          </Col>
+          <Col>{detail.applyDate && moment(detail.applyDate).format('YYYY年MM月DD日')}</Col>
+        </Row>
+        {
+          (returnTitle(serviceType) === '已处理' || returnTitle(serviceType) === '我收到的') && <Row>
+          <Col span={4} style={{textAlign: 'right'}}>
+            处理时间：
+          </Col>
+          <Col>{detail.handleDate && moment(detail.handleDate).format('YYYY年MM月DD日')}</Col>
+        </Row>
+        }
+        
+        {
+          returnTitle(serviceType) === '我收到的' && <Row>
+          <Col span={4} style={{textAlign: 'right'}}>
+            状态：
+          </Col>
+          <Col>{returnTitle(serviceType)}</Col>
+        </Row>
+        }
+        <Row>
+          <Col span={4} style={{textAlign: 'right'}}>
+            金额：
+          </Col>
+          <Col>{detail.money || '未知'}</Col>
+        </Row>
+        <Row>
+          <Col span={4} style={{textAlign: 'right'}}>
+            备注：
+          </Col>
+          {/* <Col>{detail.remarks || '未知'}</Col> */}
+        </Row>
+          </>
+        }
+      </Modal>
     </div>
   );
 }

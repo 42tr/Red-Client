@@ -4,6 +4,7 @@ import Approval from "pages/Approval/Approval";
 import User from "pages/User/User";
 import Project from "pages/Project/Project";
 import Staff from "pages/Staff/Staff";
+import Finance from "pages/Finance/Finance";
 
 
 export interface Route {
@@ -30,9 +31,9 @@ export const routes: Route[] = [
     isShow: true,
   },
   {
-    path: "/User",
-    name: "修改密码",
-    component: User,
+    path: "/Finance",
+    name: "财务",
+    component: Finance,
     isShow: true,
   },
   {
@@ -46,5 +47,10 @@ export const routes: Route[] = [
     name: "员工列表",
     component: Staff,
     isShow: true
-  }
+  },{
+    path: "/User",
+    name: "修改密码",
+    component: User,
+    isShow: true,
+  },
 ];

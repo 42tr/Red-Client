@@ -11,8 +11,6 @@ import { store } from "reduxs";
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/lib/locale/zh_CN';
 
-console.log(App)
-
 const getApp = () => (
   <ConfigProvider locale={zhCN}>
     <Provider store={store}>
@@ -26,7 +24,6 @@ const getApp = () => (
 );
 
 initConfig().then(() => {
-  console.log('initConfig')
   setTimeout(() => {
     ReactDOM.render(getApp(), document.getElementById("root"));
   }, 0);
