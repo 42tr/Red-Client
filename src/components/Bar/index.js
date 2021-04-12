@@ -9,16 +9,6 @@ export default class Bar extends Component {
     this.charts = null;
     this.state = {};
   }
-  shouldComponentUpdate(nextProps, nextState) {
-    // if (nextProps && this.props) {
-    //   return JSON.stringify(this.props.data) ===
-    //     JSON.stringify(nextProps.data) &&
-    //     nextState.BreadcrumbList.length === this.state.BreadcrumbList.length
-    //     ? false
-    //     : true;
-    // }
-    // return true;
-  }
   initCharts = () => {
     echarts.init(document.getElementById("Bar" + this.props.id)).dispose(); //销毁前一个实例
     // 基于准备好的dom，初始化echarts实例
