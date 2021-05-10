@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from "./Staff.module.scss"
-import { api } from 'utils/api'
+import { api, apiUser } from 'utils/api'
 import {
   Button, Form, message, Popconfirm, Select,
   Pagination, Table, Modal, Input
@@ -54,7 +54,7 @@ const Staff = (props: any) => {
         title="确认重置为12345678"
         onConfirm={() => {
           // PUT /user/repassword/{id}
-          api(`user/repassword/${args}`, null, "PUT").then((res) => {
+          apiUser(`user/repassword/${args}`, null, "PUT").then((res) => {
             if(res.code === 0) {
               message.success('重置成功')
             }
@@ -68,7 +68,7 @@ const Staff = (props: any) => {
         title="确认删除"
         onConfirm={() => {
           // DELETE /user/manage/{id}
-          api(`user/manage/${args}`, null, "DELETE").then((res) => {
+          apiUser(`user/manage/${args}`, null, "DELETE").then((res) => {
             if(res.code === 0) {
               message.success('删除成功')
               getProject()
@@ -103,7 +103,7 @@ const Staff = (props: any) => {
   const getProject = () => {
     setLoading(() => true)
     // GET /user/list   协助判断是否登录
-    api('user/list',undefined,'GET').then((res: any) => {
+    apiUser('user/list',undefined,'GET').then((res: any) => {
       if(res.code === 0) {
         setDataList(res.data)
         setTotal(res.data && res.data.length)
@@ -125,7 +125,7 @@ const Staff = (props: any) => {
         }
       })
     } else {
-      api('user/superior/'+curUserId+'/'+values.superior, null, 'PUT').then((res) => {
+      apiUser('user/superior/'+curUserId+'/'+values.superior, null, 'PUT').then((res) => {
         if (res.code === 0) {
           form.resetFields();
           message.success("修改成功")

@@ -15,8 +15,8 @@ export default class Bar extends Component {
     this.charts = echarts.init(document.getElementById("Bar" + this.props.id));
     this.charts.setOption({
       title: {
-        text: "某站点用户访问来源",
-        subtext: "纯属虚构",
+        text: this.props.title,
+        subtext: this.props.subTitle,
         left: "center",
       },
       tooltip: {
@@ -28,16 +28,10 @@ export default class Bar extends Component {
       },
       series: [
         {
-          name: "访问来源",
+          name: this.props.title,
           type: "pie",
           radius: "50%",
-          data: [
-            { value: 1048, name: "搜索引擎" },
-            { value: 735, name: "直接访问" },
-            { value: 580, name: "邮件营销" },
-            { value: 484, name: "联盟广告" },
-            { value: 300, name: "视频广告" },
-          ],
+          data: this.props.data,
           emphasis: {
             itemStyle: {
               shadowBlur: 10,

@@ -5,14 +5,16 @@ declare global {
 }
 
 const defaultConfig = {
-  host: "http://kisia.cn:8080",
-  // host: "http://localhost:8080",
+  // host: "http://kisia.cn:8080",
+  host: "http://kisia.cn:8081",
+  authHost: "http://kisia.cn:8080",
   // windowHost: "http://WORKER_IP:31221",
   debug: true,
 };
 
 const local = {
-  host: "kisia.cn:8080",
+  // host: "kisia.cn:8080",
+  host: "localhost:8080",
   // windowHost: "http://192.168.51.40:31221",
   debug: true,
 };
