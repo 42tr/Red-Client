@@ -12,5 +12,14 @@
     background-color: #fff;
     box-shadow: 2px 2px 8px 4px rgba(197, 197, 197, 0.3);
     overflow: auto;
+    .h2 {
+      font-size: 20px;
+      color: #666;
+      font-weight: 500;
+      padding: 23px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
   }
 }

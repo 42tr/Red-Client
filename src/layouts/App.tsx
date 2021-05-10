@@ -10,19 +10,12 @@ import { setUserDetail } from "reduxs/user.reducer";
 import { connect } from "react-redux";
 import { RootState } from "reduxs";
 import Provider from 'Store/provider';
-import { api } from "utils/api";
+import { api, apiUser } from "utils/api";
 import {
-  Form, Checkbox, Input, Layout, Menu, Modal
+  Layout, Menu
 } from 'antd';
-import { UserOutlined, LogoutOutlined, LoginOutlined } from '@ant-design/icons';
+import { UserOutlined, LogoutOutlined } from '@ant-design/icons';
 
-const layout = {
-  labelCol: { span: 4 },
-  wrapperCol: { span: 20 },
-};
-const tailLayout = {
-  wrapperCol: { offset: 4, span: 20 },
-};
 const { Content, Sider } = Layout;
 const { SubMenu } = Menu;
 
@@ -48,57 +41,23 @@ const ApprovalList: IApprovalList[] = [
 ]
 
 const App = (props: any) => {
-  const [form] = Form.useForm(); // 创建form表单实体
-
-  const onFinish = (values: any) => {
-    login(values.username,values.password)
-  };
-
-  const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo);
-  };
   const [selectedKeys, setSelectedKeys] = useState<string>('0'); // 选中子菜单
-  const [user, setUser] = useState<boolean>(false); // 是否登录
-  const [isModalVisible, setIsModalVisible] = useState(false); // 登录展示
   const [menu, setMenu] = useState<any[]>([]); // 申请内容菜单列表
-  const showModal = () => {
-    setIsModalVisible(() => true);
-  };
 
-  const handleOk = () => {
-    form.submit()
-    setIsModalVisible(() => false);
-  };
 
-  const handleCancel = () => {
-    setIsModalVisible(() => false);
-  };
   useEffect(() => {
       const { location: { pathname } } = props
       let arr = pathname.split('/')
       setSelectedKeys(() => arr[arr.length - 1])
-      // GET /project/list   协助判断是否登录
-      api('project/list',undefined,'GET').then((res: any) => {
-        if(res.code === '401') {
-          setUser(() => false)
-        } else {
-          setUser(() => true)
+      // check login status
+      apiUser('user/checkStatus',undefined,'GET').then((res: any) => {
+        if (res === null) {
+          window.location.href = 'http://kisia.cn:8080?url=' + window.location.href
         }
       })
       getMenu()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const login = (username: string,password: string) => {
-    // POST /user/login
-    api('user/login',{username,password},"POST").then((res) => {
-      if(res.code === 0) {
-        getMenu()
-        setUser(true)
-        setIsModalVisible(false);
-      }
-    })
-  }
 
   const getMenu = () => {
     // GET /approval/menu
@@ -127,28 +86,17 @@ const App = (props: any) => {
               <div className={styles.title}>OA审批</div>
               <div className={styles.titleBox}>
                 {
-                  user ? <><span onClick={() => {
-                    api('user/logout',undefined,'DELETE').then((res) => {
-                      // if(res === 0) {
-                      //   setUser(() => false)
-                      // }
-                      setUser(() => false)
+                  <><span onClick={() => {
+                    apiUser('user/logout',undefined,'DELETE').then((res) => {
+                      window.location.href = 'http://kisia.cn:8080?url=' + window.location.href
                     })
                   }}>
                     <LogoutOutlined
                       className={styles.LogoutOutlined}
                     />
                   </span>
-                  {(props && props.user.userName) || '未知'}</> : <span onClick={() => {
-                    showModal()
-                    form.resetFields();
-                  }}>
-                    <LoginOutlined
-                      className={styles.LoginOutlined}
-                    />
-                  </span>
+                  {(props && props.user.userName) || '未知'}</>
                 }
-                
               </div>
             </div>
             <Menu theme='dark' mode="inline" selectedKeys={[selectedKeys]} defaultOpenKeys={['Approval']}
@@ -187,40 +135,6 @@ const App = (props: any) => {
           </Layout>
         </Layout>
       </div>
-      <Modal title="Basic Modal" 
-        visible={isModalVisible} 
-        onOk={handleOk} 
-        onCancel={handleCancel}
-      >
-        <Form
-          {...layout}
-          name="basic"
-          form={form}
-          initialValues={{ username: '', password: '', remember: true }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-        >
-          <Form.Item
-            label="用户名"
-            name="username"
-            rules={[{ required: true, message: '请输入用户名!' }]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            label="密码"
-            name="password"
-            rules={[{ required: true, message: '请输入密码!' }]}
-          >
-            <Input.Password />
-          </Form.Item>
-
-          <Form.Item {...tailLayout} name="remember" valuePropName="checked">
-            <Checkbox>记住密码</Checkbox>
-          </Form.Item>
-        </Form>
-      </Modal>
     
     </Provider>
   )

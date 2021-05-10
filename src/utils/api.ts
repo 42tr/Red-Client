@@ -82,6 +82,7 @@ export const fullAddressApi = (
             // if (json && json.authUrl) {
             //   window.location.href = json.authUrl;
             // }
+            window.location.href = 'http://kisia.cn:8080?url=' + window.location.href
           }
           return Promise.reject(json);
         });
@@ -104,6 +105,10 @@ export const fullAddressApi = (
 
 export const api = (api: string, body: any = null, method: string = "POST", redirectWhen401 = true, isFile = false, showError = true, headers = {}) => {
   return fullAddressApi(`${window.env.host}/${api}`, body, method, redirectWhen401, "include", isFile, showError, headers);
+};
+
+export const apiUser = (api: string, body: any = null, method: string = "POST", redirectWhen401 = true, isFile = false, showError = true, headers = {}) => {
+  return fullAddressApi(`${window.env.authHost}/${api}`, body, method, redirectWhen401, "include", isFile, showError, headers);
 };
 
 export const apiWithFullHost = (api: string, body = null, method: string = "POST", redirectWhen401 = true, isFile = false, showError = true, headers = {}) => {

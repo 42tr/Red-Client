@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from "./User.module.scss"
-import { api } from 'utils/api'
+import { apiUser } from 'utils/api'
 import { Form, Input, Button, message } from 'antd';
 
 const layout = {
@@ -17,7 +17,7 @@ const User = (props: any) => {
   const onFinish = (values: any) => {
     console.log(values);
     // PUT /user/password
-    api('user/password',{...values},"PUT").then((res) => {
+    apiUser('user/password',{...values},"PUT").then((res) => {
       if(res.code === 0) {
         form.resetFields();
         message.success('修改成功！')
