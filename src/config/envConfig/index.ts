@@ -8,6 +8,8 @@ const defaultConfig = {
   // host: "http://kisia.cn:8080",
   host: "http://kisia.cn:8081",
   authHost: "http://kisia.cn:8080",
+  // host: "http://localhost:8081",
+  // authHost: "http://localhost:8080",
   // windowHost: "http://WORKER_IP:31221",
   debug: true,
 };
