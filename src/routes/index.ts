@@ -5,6 +5,7 @@ import User from "pages/User/User";
 import Project from "pages/Project/Project";
 import Staff from "pages/Staff/Staff";
 import Finance from "pages/Finance/Finance";
+import ProjectStatistics from "pages/ProjectStatistics/ProjectStatistics";
 
 
 export interface Route {
@@ -40,6 +41,12 @@ export const routes: Route[] = [
     path: "/Project",
     name: "项目列表",
     component: Project,
+    isShow: true,
+  },
+  {
+    path: "/ProjectStatistics",
+    name: "项目统计",
+    component: ProjectStatistics,
     isShow: true,
   },
   {

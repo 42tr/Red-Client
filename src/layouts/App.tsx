@@ -116,6 +116,7 @@ const App = (props: any) => {
                 }
               </SubMenu>
               <Menu.Item key={'Project'}>{'项目列表'}</Menu.Item>
+              <Menu.Item key={'ProjectStatistics'}>{'项目统计'}</Menu.Item>
               <Menu.Item key={'Finance'}>{'财务'}</Menu.Item>
               <Menu.Item key={'Staff'}>{'人员'}</Menu.Item>
               <Menu.Item key={'User'}>{'修改密码'}</Menu.Item>

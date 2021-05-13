@@ -42,6 +42,7 @@ export default class Bar extends Component {
         },
       ],
     });
+    this.charts.on('click', this.props.callback);
   };
   initResize = () => {
     window.addEventListener("resize", this.handleResize);

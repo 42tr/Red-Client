@@ -4,9 +4,12 @@ import { api } from 'utils/api'
 import {
   Button, Form, message,
   Pagination, Table, Modal, Input,
-  Popconfirm
+  Popconfirm,
+  Select,
+  DatePicker
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
+import moment from 'moment';
 
 const layout = {
   labelCol: { span: 4 },
@@ -15,16 +18,40 @@ const layout = {
 
 const Project = (props: any) => {
   const [form] = Form.useForm();
+  const [incomeForm] = Form.useForm();
   const [type, setType] = useState<string>('add');
   // 用户数据列表
   const [dataList, setDataList] = useState<any[]>([])
+  const [projectId, setProjectId] = useState<number>(0)
   // 数据总数
   const [total, setTotal] = useState<number>(0)
   // 数据页码
   const [page, setPage] = useState<number>(1)
   // 加载控制
   const [loading, setLoading] = useState<boolean>(false)
+  const [detailData, setDetailData] = useState<any[]>([])
+  const [typeList] = useState<string[]>([])
   // 表头配置
+  const detailColumns: ColumnsType<any> | undefined = [
+    {
+      title: '时间',
+      dataIndex: 'date',
+      key: 'date',
+      align: 'center',
+    },
+    {
+      title: '类型',
+      dataIndex: 'type',
+      key: 'type',
+      align: 'center',
+    },
+    {
+      title: '金额',
+      dataIndex: 'amount',
+      key: 'amount',
+      align: 'center',
+    }
+  ]
   const columns: ColumnsType<any> | undefined = [
     {
       title: '项目名称',
@@ -63,23 +90,52 @@ const Project = (props: any) => {
           })
         }}
       >
-        <Button type='primary' danger >删除</Button>
+        <Button style={{marginRight: '20px'}} type='primary' danger >删除</Button>
       </Popconfirm>
+      <Button type='primary' onClick={() => {
+        setIsDetailModalVisible(true);
+        qryIncome(args);
+        setProjectId(args)
+      }}>查看详情</Button>
       </>
     }
   ]
   useEffect(() => {
+    api('api/dic',undefined,'GET').then((res: any) => {
+      if(res.code === 0) {
+        console.log(res.data)
+        res.data.forEach((m: any) => {
+          if (m.category === '收入类型' && typeList.indexOf(m.name) < 0) {
+            typeList.push(m.name)
+          }
+        });
+        console.log(typeList)
+        setLoading(() => false)
+      }
+    })
     getProject()
-  }, [])
-  const [isModalVisible, setIsModalVisible] = useState(false); // 登录展示
+  }, [typeList])
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const showModal = (record: any) => {
     setIsModalVisible(() => true);
     form.setFieldsValue({...record})
   };
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [isIncomeModalVisible, setIsIncomeModalVisible] = useState(false);
+  const qryIncome = (id: number) => {
+    api(`project/income/detail/${id}`, undefined, "GET").then((res) => {
+      if (res.code === 0) {
+        setDetailData(res.data)
+      }
+    })
+  }
 
   const handleOk = () => {
     form.submit()
     setIsModalVisible(() => false);
+  };
+  const incomeHandleOk = () => {
+    incomeForm.submit()
   };
 
   const handleCancel = () => {
@@ -102,6 +158,7 @@ const Project = (props: any) => {
   const onFinish = (values: any) => {
     // POST /project
     // PUT /project/{id}
+    console.log(values)
     if(type === 'add') {
       api('project',{...values},"POST").then((res) => {
         if(res.code === 0) {
@@ -122,6 +179,12 @@ const Project = (props: any) => {
     setType('add')
     form.resetFields();
   };
+  // const onIncomeFinish = (values: any) => {
+  //   values.date = moment(values.date).format('YYYY-MM-DD')
+  //   console.log(values)
+  //   incomeForm.resetFields();
+  //   setIsIncomeModalVisible(false);
+  // };
   const onFinishFailed = (errorInfo: any) => {
     console.log('Failed:', errorInfo);
   };
@@ -162,31 +225,57 @@ const Project = (props: any) => {
           <div className={styles.btns}></div>
         </div>
       </div>
-      <Modal title="Basic Modal" 
-        visible={isModalVisible} 
-        onOk={handleOk} 
-        onCancel={handleCancel}
-      >
-        <Form
-          {...layout}
-          name="basic"
-          form={form}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-        >
-          <Form.Item
-            label="项目名称"
-            name="name"
-            rules={[{ required: true, message: '请输入项目名称!' }]}
-          >
+      <Modal title="项目信息" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel} >
+        <Form {...layout} name="basic" form={form} onFinish={onFinish} onFinishFailed={onFinishFailed} >
+          <Form.Item label="项目名称" name="name" rules={[{ required: true, message: '请输入项目名称!' }]} >
             <Input />
           </Form.Item>
-          <Form.Item
-            label="项目描述"
-            name="description"
-            rules={[{ required: true, message: '请输入项目描述!' }]}
-          >
+          <Form.Item label="项目描述" name="description" rules={[{ required: true, message: '请输入项目描述!' }]} >
             <Input.TextArea placeholder="项目描述..." />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal title="详情" visible={isDetailModalVisible} onCancel={() => {setIsDetailModalVisible(false)}}
+        footer={null} width={1000}>
+        <Button onClick={() => {setIsIncomeModalVisible(true)}} type='primary'>
+          添加
+        </Button>
+        <Table columns={detailColumns} dataSource={detailData} pagination={false} loading={loading}
+          rowKey={((record, index) => {
+            return index + ''
+          })}
+        />
+      </Modal>
+      <Modal title="新增收入" visible={isIncomeModalVisible} onOk={incomeHandleOk}
+        onCancel={() => {setIsIncomeModalVisible(false)}} >
+        <Form {...layout} name="basic" form={incomeForm} onFinish={(values: any) => {
+            values.date = moment(values.date).format('YYYY-MM-DD')
+            values.amount = parseFloat(values.amount)
+            values.projectId = projectId
+            console.log(values)
+            incomeForm.resetFields();
+            setIsIncomeModalVisible(false);
+            api('project/income/detail', values, "POST").then((res) => {
+              if (res.code === 0) {
+                message.info("新增成功")
+                qryIncome(projectId)
+              } else {
+                message.error(res.msg)
+              }
+            })
+          }} onFinishFailed={onFinishFailed} >
+          <Form.Item label="类型" name="type" rules={[{ required: true }]}>
+            <Select>
+              {
+                typeList.map((type, index) => <Select.Option key={index} value={type}>{type}</Select.Option>)
+              }
+            </Select>
+          </Form.Item>
+          <Form.Item label="金额" name="amount" rules={[{ required: true, message: '请输入金额!' }]} >
+            <Input />
+          </Form.Item>
+          <Form.Item label="日期" name="date" rules={[{ required: true }]} >
+            <DatePicker />
           </Form.Item>
         </Form>
       </Modal>
