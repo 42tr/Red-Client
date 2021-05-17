@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import styles from "./Project.module.scss"
 import { api } from 'utils/api'
-import {
-  Button, Form, message,
-  Pagination, Table, Modal, Input,
-  Popconfirm,
-  Select,
-  DatePicker
-} from 'antd';
+import { Button, Form, message, Pagination, Table, Modal, Input, Popconfirm, Select, DatePicker, Radio } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import moment from 'moment';
 
 const layout = {
-  labelCol: { span: 4 },
+  labelCol: { span: 6 },
   wrapperCol: { span: 20 },
 };
 
 const Project = (props: any) => {
+  const [curArea, setCurArea] = useState<string>()
+  const [areaList] = useState<string[]>([])
+  const [typeList] = useState<string[]>([])
+  const [projectTypeList] = useState<string[]>([])
+  const [partyList, setPartyList] = useState<any[]>([])
   const [form] = Form.useForm();
   const [incomeForm] = Form.useForm();
   const [type, setType] = useState<string>('add');
   // 用户数据列表
+  const [partyMap] = useState<any>({})
   const [dataList, setDataList] = useState<any[]>([])
   const [projectId, setProjectId] = useState<number>(0)
   // 数据总数
@@ -30,7 +30,6 @@ const Project = (props: any) => {
   // 加载控制
   const [loading, setLoading] = useState<boolean>(false)
   const [detailData, setDetailData] = useState<any[]>([])
-  const [typeList] = useState<string[]>([])
   // 表头配置
   const detailColumns: ColumnsType<any> | undefined = [
     {
@@ -54,21 +53,51 @@ const Project = (props: any) => {
   ]
   const columns: ColumnsType<any> | undefined = [
     {
+      title: '甲方名称',
+      dataIndex: 'party',
+      key: 'party',
+      align: 'center',
+    },
+    {
       title: '项目名称',
       dataIndex: 'name',
       key: 'name',
       align: 'center',
     },
     {
-      title: '项目描述',
-      dataIndex: 'description',
-      key: 'description',
+      title: '项目类别',
+      dataIndex: 'type',
+      key: 'type',
       align: 'center',
     },
     {
-      title: '创建者',
-      dataIndex: 'creator',
-      key: 'creator',
+      title: '中标价（万元）',
+      dataIndex: 'price',
+      key: 'price',
+      align: 'center',
+    },
+    {
+      title: '代理费（元）',
+      dataIndex: 'price1',
+      key: 'price1',
+      align: 'center',
+    },
+    {
+      title: '清单编制费（元）',
+      dataIndex: 'price2',
+      key: 'price2',
+      align: 'center',
+    },
+    {
+      title: '合计（元）',
+      dataIndex: 'price4',
+      key: 'price4',
+      align: 'center',
+    },
+    {
+      title: '报名费（元）',
+      dataIndex: 'price3',
+      key: 'price3',
       align: 'center',
     },
     {
@@ -77,11 +106,10 @@ const Project = (props: any) => {
       key: 'id',
       align: 'center',
       render: (args: any, record: any, index: number) => <>
-      <Button style={{marginRight: '20px'}} type='primary' onClick={() => {showModal(record); setType(args)}}>修改项目信息</Button>
+      <Button style={{marginRight: '20px'}} type='primary' onClick={() => {showModal(record); setType(args)}}>修改</Button>
       <Popconfirm
         title="确认删除"
         onConfirm={() => {
-          // DELETE /project/{id}
           api(`project/${args}`,undefined,"DELETE").then((res) => {
             if(res.code === 0) {
               message.success('删除成功')
@@ -96,34 +124,58 @@ const Project = (props: any) => {
         setIsDetailModalVisible(true);
         qryIncome(args);
         setProjectId(args)
-      }}>查看详情</Button>
+      }}>详情</Button>
       </>
     }
   ]
   useEffect(() => {
-    api('api/dic',undefined,'GET').then((res: any) => {
+    api('api/dic', undefined, 'GET').then((res: any) => {
       if(res.code === 0) {
-        console.log(res.data)
         res.data.forEach((m: any) => {
           if (m.category === '收入类型' && typeList.indexOf(m.name) < 0) {
             typeList.push(m.name)
           }
+          if (m.category === '地区' && areaList.indexOf(m.name) < 0) {
+            areaList.push(m.name)
+          }
+          if (m.category === '项目类别' && projectTypeList.indexOf(m.name) < 0) {
+            projectTypeList.push(m.name)
+          }
         });
-        console.log(typeList)
-        setLoading(() => false)
+        if (areaList.length > 0) {
+          setCurArea(areaList[0])
+        }
       }
     })
-    getProject()
-  }, [typeList])
+  }, [typeList, areaList, projectTypeList])
+  useEffect(() => {
+    if (curArea !== undefined) {
+      console.log(curArea)
+      getProject()
+    }
+  }, [curArea])
+  useEffect(() => {
+    api('project/party/list', undefined, 'GET').then((res: any) => {
+      if (res.code === 0) {
+        res.data.forEach((m: any) => {
+          partyMap[m.name] = m.id
+        })
+        setPartyList(res.data)
+      } else {
+        message.error(res.msg)
+      }
+    })
+  }, [])
   const [isModalVisible, setIsModalVisible] = useState(false);
   const showModal = (record: any) => {
+    console.log(record)
     setIsModalVisible(() => true);
     form.setFieldsValue({...record})
   };
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [isIncomeModalVisible, setIsIncomeModalVisible] = useState(false);
   const qryIncome = (id: number) => {
-    api(`project/income/detail/${id}`, undefined, "GET").then((res) => {
+    api(`project/income/detail/project/${id}`, undefined, "GET").then((res) => {
       if (res.code === 0) {
         setDetailData(res.data)
       }
@@ -132,7 +184,6 @@ const Project = (props: any) => {
 
   const handleOk = () => {
     form.submit()
-    setIsModalVisible(() => false);
   };
   const incomeHandleOk = () => {
     incomeForm.submit()
@@ -145,26 +196,30 @@ const Project = (props: any) => {
   };
   const getProject = () => {
     setLoading(() => true)
-    // GET /project/list   协助判断是否登录
-    api('project/list',undefined,'GET').then((res: any) => {
+    api('project/list/' + curArea,undefined,'GET').then((res: any) => {
       if(res.code === 0) {
+        res.data.forEach((val: any) => {val.price4 = val.price1 + val.price2})
         setDataList(res.data)
         setTotal(res.data && res.data.length)
         setLoading(() => false)
       }
     })
   }
-
   const onFinish = (values: any) => {
-    // POST /project
-    // PUT /project/{id}
-    console.log(values)
+    values.price = parseFloat(values.price)
+    if (partyMap[values.party]) {
+      values.party = partyMap[values.party]
+    }
     if(type === 'add') {
       api('project',{...values},"POST").then((res) => {
         if(res.code === 0) {
           form.resetFields();
           getProject()
           message.success('添加成功！')
+          form.resetFields();
+          setIsModalVisible(false)
+        } else {
+          message.error(res.msg)
         }
       })
     } else {
@@ -173,20 +228,14 @@ const Project = (props: any) => {
           form.resetFields();
           getProject()
           message.success('修改成功！')
+          form.resetFields();
+          setType('add')
+          setIsModalVisible(false)
+        } else {
+          message.error(res.msg)
         }
       })
     }
-    setType('add')
-    form.resetFields();
-  };
-  // const onIncomeFinish = (values: any) => {
-  //   values.date = moment(values.date).format('YYYY-MM-DD')
-  //   console.log(values)
-  //   incomeForm.resetFields();
-  //   setIsIncomeModalVisible(false);
-  // };
-  const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo);
   };
   return (
     <div className={styles.AddApproval}>
@@ -197,26 +246,23 @@ const Project = (props: any) => {
             添加项目
           </Button>
         </div>
-        <Table
-          columns={columns}
-          dataSource={dataList.slice((page - 1) * 10,page * 10)}
-          pagination={false}
-          loading={loading}
-          rowKey={((record, index) => {
-            return index + ''
-          })}
-        />
+        <div className={styles.h3}>
+          <div>
+            地区&emsp;
+            <Radio.Group value={curArea} onChange={(e) => {
+              setCurArea(e.target.value)
+            }}>{
+                areaList.map((area, index) => <Radio key={index} value={area} defaultChecked={index === 0}>{area}</Radio>)
+            }</Radio.Group>
+          </div>
+        </div>
+        <Table columns={columns} dataSource={dataList.slice((page - 1) * 10,page * 10)}
+          pagination={false} loading={loading} rowKey={record => record.id} />
         <div className={styles.tableFooter}>
           <span className={styles.count}></span>
           <div className={styles.Pagination}>
             <span className={styles.cont}>10条/页</span>
-            <Pagination
-              showSizeChanger={false}
-              showQuickJumper={true}
-              current={page}
-              total={total}
-              pageSize={10}
-              size="small"
+            <Pagination showSizeChanger={false} showQuickJumper={true} current={page} total={total} pageSize={10} size="small"
               onChange={(v: number) => {
                 setPage(() => v)
               }}
@@ -226,9 +272,31 @@ const Project = (props: any) => {
         </div>
       </div>
       <Modal title="项目信息" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel} >
-        <Form {...layout} name="basic" form={form} onFinish={onFinish} onFinishFailed={onFinishFailed} >
+        <Form {...layout} name="basic" form={form} onFinish={onFinish} >
+          <Form.Item label="甲方" name="party" rules={[{ required: true }]}>
+            <Select> {
+                partyList.map(party => <Select.Option key={party.id} value={party.id}>{party.name}</Select.Option>)
+            } </Select>
+          </Form.Item>
           <Form.Item label="项目名称" name="name" rules={[{ required: true, message: '请输入项目名称!' }]} >
             <Input />
+          </Form.Item>
+          <Form.Item label="项目类别" name="type" rules={[{ required: true }]}>
+            <Select>
+              {
+                projectTypeList.map((projectType, index) => <Select.Option key={index} value={projectType}>{projectType}</Select.Option>)
+              }
+            </Select>
+          </Form.Item>
+          <Form.Item label="中标价（万元）" name="price" rules={[{ required: true}]} >
+            <Input />
+          </Form.Item>
+          <Form.Item label="地区" name="area" rules={[{ required: true }]}>
+            <Select>
+              {
+                areaList.map((area, index) => <Select.Option key={index} value={area}>{area}</Select.Option>)
+              }
+            </Select>
           </Form.Item>
           <Form.Item label="项目描述" name="description" rules={[{ required: true, message: '请输入项目描述!' }]} >
             <Input.TextArea placeholder="项目描述..." />
@@ -257,13 +325,14 @@ const Project = (props: any) => {
             setIsIncomeModalVisible(false);
             api('project/income/detail', values, "POST").then((res) => {
               if (res.code === 0) {
-                message.info("新增成功")
+                message.success("新增成功")
                 qryIncome(projectId)
+                getProject()
               } else {
                 message.error(res.msg)
               }
             })
-          }} onFinishFailed={onFinishFailed} >
+          }} >
           <Form.Item label="类型" name="type" rules={[{ required: true }]}>
             <Select>
               {
