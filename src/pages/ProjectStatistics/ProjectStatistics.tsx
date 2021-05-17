@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Table } from 'antd';
+import { message, Modal, Table } from 'antd';
 import styles from "./ProjectStatistics.module.scss";
 // import { api } from 'utils/api'
 import { withRouter } from "react-router";
@@ -12,6 +12,7 @@ import { ColumnsType } from 'antd/lib/table';
 
 const ProjectStatistics = (props: any) => {
   const [projectData, setProjectData] = useState<any[]>([])
+  const [areaData, setAreaData] = useState<any[]>([])
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [detailData, setDetailData] = useState<any[]>([])
   const [loading, setLoading] = useState<boolean>(false)
@@ -37,15 +38,33 @@ const ProjectStatistics = (props: any) => {
     }
   ]
   useEffect(() => {
-    api("project/income/statistics", undefined, "GET").then((res) => {
+    api("project/income/statistics/project", undefined, "GET").then((res) => {
       if (res.code === 0) {
         setProjectData(res.data)
+      } else {
+        message.error(res.msg)
+      }
+    })
+    api("project/income/statistics/area", undefined, "GET").then((res) => {
+      if (res.code === 0) {
+        setAreaData(res.data)
+      } else {
+        message.error(res.msg)
       }
     })
   },[])
   const qryIncome = (id: number) => {
     setLoading(true)
-    api(`project/income/detail/${id}`, undefined, "GET").then((res) => {
+    api(`project/income/detail/project/${id}`, undefined, "GET").then((res) => {
+      setLoading(false)
+      if (res.code === 0) {
+        setDetailData(res.data)
+      }
+    })
+  }
+  const qryAreaIncome = (id: number) => {
+    setLoading(true)
+    api(`project/income/detail/area/${id}`, undefined, "GET").then((res) => {
       setLoading(false)
       if (res.code === 0) {
         setDetailData(res.data)
@@ -61,6 +80,10 @@ const ProjectStatistics = (props: any) => {
         <Bar id="1" title="项目分布" data={projectData} callback={(param:any)=>{
           setIsDetailModalVisible(true)
           qryIncome(param.data.id)
+        }} />
+        <Bar id="2" title="地区分布" data={areaData} callback={(param:any)=>{
+          setIsDetailModalVisible(true)
+          qryAreaIncome(param.data.name)
         }} />
       </div>
 
