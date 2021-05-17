@@ -153,6 +153,7 @@ const Project = (props: any) => {
       console.log(curArea)
       getProject()
     }
+  // eslint-disable-next-line
   }, [curArea])
   useEffect(() => {
     api('project/party/list', undefined, 'GET').then((res: any) => {
@@ -165,7 +166,7 @@ const Project = (props: any) => {
         message.error(res.msg)
       }
     })
-  }, [])
+  }, [partyMap])
   const [isModalVisible, setIsModalVisible] = useState(false);
   const showModal = (record: any) => {
     console.log(record)
