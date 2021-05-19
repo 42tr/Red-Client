@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from "./Staff.module.scss"
-import { api, apiUser } from 'utils/api'
+import { apiUser } from 'utils/api'
 import {
   Button, Form, message, Popconfirm, Select,
   Pagination, Table, Modal, Input
@@ -114,7 +114,7 @@ const Staff = (props: any) => {
   const onFinishForm = async () => {
     const values = await form.validateFields();
     if (type === 'add') {
-      api('user', values, "POST").then((res) => {
+      apiUser('user', values, "POST").then((res) => {
         if (res.code === 0) {
           form.resetFields();
           message.success("添加成功")

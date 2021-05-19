@@ -155,6 +155,13 @@ const Project = (props: any) => {
     }
   // eslint-disable-next-line
   }, [curArea])
+  const downloadExcel = () => {
+    var url = `${window.env.host}/project/excel`
+    var iframe = document.createElement("iframe")
+    iframe.style.display = "none";
+    iframe.src = url;
+    document.body.appendChild(iframe);
+  }
   useEffect(() => {
     api('project/party/list', undefined, 'GET').then((res: any) => {
       if (res.code === 0) {
@@ -243,9 +250,14 @@ const Project = (props: any) => {
       <div className={styles.tableBox}>
         <div className={styles.h2}>
           <span>项目列表</span>
-          <Button onClick={() => {showModal({}); setType('add') }} type='primary'>
-            添加项目
-          </Button>
+          <div>
+            <Button onClick={() => { downloadExcel()}} type='primary' style={{marginRight: '20px'}} >
+              导出表格
+            </Button>
+            <Button onClick={() => {showModal({}); setType('add') }} type='primary'>
+              添加项目
+            </Button>
+          </div>
         </div>
         <div className={styles.h3}>
           <div>
