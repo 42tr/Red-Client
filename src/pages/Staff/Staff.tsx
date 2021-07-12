@@ -114,7 +114,7 @@ const Staff = (props: any) => {
   const onFinishForm = async () => {
     const values = await form.validateFields();
     if (type === 'add') {
-      apiUser('user', values, "POST").then((res) => {
+      apiUser('user/register', values, "POST").then((res) => {
         if (res.code === 0) {
           form.resetFields();
           message.success("添加成功")
