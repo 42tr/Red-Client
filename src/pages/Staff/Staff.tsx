@@ -57,6 +57,8 @@ const Staff = (props: any) => {
           apiUser(`user/repassword/${args}`, null, "PUT").then((res) => {
             if(res.code === 0) {
               message.success('重置成功')
+            } else {
+              message.error(res.msg)
             }
           })
         }}>
@@ -72,6 +74,8 @@ const Staff = (props: any) => {
             if(res.code === 0) {
               message.success('删除成功')
               getProject()
+            } else {
+              message.error(res.msg)
             }
           })
         }}>
